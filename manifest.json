@@ -1,0 +1,15 @@
+{
+  "name": "Ammu ❤️ Nani",
+  "short_name": "LoveApp",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ff758c",
+  "theme_color": "#ff758c",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/833/833472.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
