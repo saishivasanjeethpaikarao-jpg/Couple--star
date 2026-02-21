@@ -1,229 +1,158 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Ammu ❤️ Nani</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.json">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <style>
-    body{
-      text-align:center;
-      font-family:Arial;
-      background:linear-gradient(to right,#ff758c,#ff7eb3);
-      color:white;
-      margin:0;
-      padding:0;
-    }
-    .card{
-      background:rgba(0,0,0,0.3);
-      padding:20px;
-      margin:20px;
-      border-radius:20px;
-    }
-    input{
-      padding:10px;
-      margin:5px;
-      border-radius:10px;
-      border:none;
-      width:70%;
-    }
-    button{
-      padding:10px;
-      margin:5px;
-      border:none;
-      border-radius:10px;
-      cursor:pointer;
-      font-size:16px;
-    }
-    .add{background:#4CAF50;color:white;}
-    .remove{background:#f44336;color:white;}
-    .hidden{display:none;}
-    .locked{opacity:0.4;}
-    #chatBox{
-      height:200px;
-      overflow:auto;
-      background:white;
-      color:black;
-      padding:10px;
-      border-radius:10px;
-      text-align:left;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⭐ Ammu ❤️ Nani ⭐</title>
+<style>
+body{font-family:Arial,sans-serif;background:#ffe6f0;display:flex;flex-direction:column;align-items:center;padding:20px;}
+h1{color:#ff3366;text-align:center;}
+.card{background:white;padding:20px;margin:10px;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,0.2);width:300px;text-align:center;}
+button{background-color:#ff4d6d;color:white;font-weight:bold;font-size:16px;padding:10px 20px;border:none;border-radius:8px;margin:5px;cursor:pointer;}
+button.remove{background-color:#ffa3b1;}
+#loginBox,#app{width:350px;}
+.hidden{display:none;}
+#chatBox{height:150px;overflow:auto;background:#f0f0f0;padding:10px;border-radius:10px;text-align:left;margin-bottom:10px;}
+input{padding:8px;width:80%;border-radius:5px;border:1px solid #ccc;margin-bottom:5px;}
+</style>
 </head>
-
 <body>
 
 <h1>⭐ Ammu ❤️ Nani ⭐</h1>
 
+<!-- LOGIN -->
 <div id="loginBox" class="card">
   <h2>Login</h2>
   <input id="username" placeholder="Ammu or Nani"><br>
   <input id="password" type="password" placeholder="Password"><br>
   <button onclick="login()">Login</button>
-  <p id="error" style="color:yellow;"></p>
+  <p id="error" style="color:red;"></p>
 </div>
 
+<!-- APP -->
 <div id="app" class="hidden">
-
   <h3 id="welcome"></h3>
   <button onclick="logout()">Logout</button>
 
+  <!-- Ammu Card -->
   <div id="ammuCard" class="card">
     <h2>Ammu</h2>
     <h3 id="ammuStars">0</h3>
-    <button id="ammuAdd" class="add" onclick="changeStar('Ammu',1)">+ Star</button>
+    <button id="ammuAdd" onclick="changeStar('Ammu',1)">+ Star</button>
     <button id="ammuRemove" class="remove" onclick="changeStar('Ammu',-1)">- Star</button>
   </div>
 
+  <!-- Nani Card -->
   <div id="naniCard" class="card">
     <h2>Nani</h2>
     <h3 id="naniStars">0</h3>
-    <button id="naniAdd" class="add" onclick="changeStar('Nani',1)">+ Star</button>
+    <button id="naniAdd" onclick="changeStar('Nani',1)">+ Star</button>
     <button id="naniRemove" class="remove" onclick="changeStar('Nani',-1)">- Star</button>
   </div>
 
+  <!-- Private Messages -->
   <div class="card">
     <h2>💌 Private Messages</h2>
-    <div id="chatBox"></div><br>
+    <div id="chatBox"></div>
     <input id="msgInput" placeholder="Type message...">
     <button onclick="sendMessage()">Send</button>
   </div>
-
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-
+// ================== SUPABASE ==================
 const supabase = window.supabase.createClient(
-  "https://dpnoooewtbjkzxcugkrd.supabase.co"
+  "https://dpnoooewtbjkzxcugkrd.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRwbm9vb2V3dGJqa3p4Y3Vna3JkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2ODYxODMsImV4cCI6MjA4NzI2MjE4M30.ugDUdtpEArQ38DH3mulCKuDTV4scWtCKtZXkQ-CzFnI"
 );
 
-const USERS = {
-  Ammu: "ammu123",
-  Nani: "nani123"
-};
-
+// ================== LOGIN ==================
+const USERS = { Ammu:"ammu123", Nani:"nani123" };
 let currentUser = "";
 
 function login(){
-  const user = document.getElementById("username").value;
-  const pass = document.getElementById("password").value;
-
-  if(USERS[user] && USERS[user] === pass){
-    currentUser = user;
-    document.getElementById("loginBox").classList.add("hidden");
-    document.getElementById("app").classList.remove("hidden");
-    document.getElementById("welcome").innerText="Logged in as "+user;
-    lockOwnCard();
+  const user = document.getElementById('username').value.trim();
+  const pass = document.getElementById('password').value.trim();
+  const error = document.getElementById('error');
+  if(USERS[user] && USERS[user]===pass){
+    currentUser=user;
+    document.getElementById('loginBox').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
+    document.getElementById('welcome').innerText=`Welcome ${user}!`;
     loadStars();
     loadMessages();
+    error.innerText="";
   } else {
-    document.getElementById("error").innerText="Wrong username or password!";
+    error.innerText="Invalid username or password!";
   }
 }
 
 function logout(){
-  location.reload();
+  currentUser="";
+  document.getElementById('app').classList.add('hidden');
+  document.getElementById('loginBox').classList.remove('hidden');
+  document.getElementById('username').value="";
+  document.getElementById('password').value="";
 }
 
-function lockOwnCard(){
-  if(currentUser==="Ammu"){
-    document.getElementById("ammuCard").classList.add("locked");
-    document.getElementById("ammuAdd").disabled=true;
-    document.getElementById("ammuRemove").disabled=true;
-  }
-  if(currentUser==="Nani"){
-    document.getElementById("naniCard").classList.add("locked");
-    document.getElementById("naniAdd").disabled=true;
-    document.getElementById("naniRemove").disabled=true;
-  }
-}
+// ================== STARS ==================
+let stars={Ammu:0,Nani:0};
 
 async function loadStars(){
-  const { data } = await supabase.from("Star").select("*");
-
-  data.forEach(row=>{
-    if(row.name==="Ammu")
-      document.getElementById("ammuStars").innerText=row.count;
-
-    if(row.name==="Nani")
-      document.getElementById("naniStars").innerText=row.count;
-
-    if(row.count>0 && row.count%50===0){
-      alert("🎁 50 Stars Reached! Gift Time ❤️");
-    }
-  });
+  const { data, error } = await supabase.from('Star').select();
+  if(!error && data.length){
+    data.forEach(row=>{ stars[row.person]=row.count; });
+    updateStarsUI();
+  }
+  lockButtons();
 }
 
-async function changeStar(name,value){
-  const { data } = await supabase
-    .from("Star")
-    .select("*")
-    .eq("name",name)
-    .single();
-
-  let newCount = data.count + value;
-  if(newCount<0) newCount=0;
-
-  await supabase
-    .from("Star")
-    .update({count:newCount})
-    .eq("name",name);
-
-  loadStars();
+function updateStarsUI(){
+  document.getElementById('ammuStars').innerText = stars['Ammu'];
+  document.getElementById('naniStars').innerText = stars['Nani'];
 }
 
+function changeStar(person,delta){
+  if((currentUser==='Ammu' && person==='Ammu') || (currentUser==='Nani' && person==='Nani')){
+    alert("You can't change your own stars!");
+    return;
+  }
+  stars[person]+=delta;
+  if(stars[person]<0) stars[person]=0;
+  updateStarsUI();
+  saveStars(person);
+}
+
+async function saveStars(person){
+  await supabase.from('Star').upsert({ person:person, count:stars[person] });
+}
+
+function lockButtons(){
+  document.getElementById('ammuAdd').disabled=currentUser==='Ammu';
+  document.getElementById('ammuRemove').disabled=currentUser==='Ammu';
+  document.getElementById('naniAdd').disabled=currentUser==='Nani';
+  document.getElementById('naniRemove').disabled=currentUser==='Nani';
+}
+
+// ================== MESSAGES ==================
 async function loadMessages(){
-  const { data } = await supabase
-    .from("Messages")
-    .select("*")
-    .order("created_at",{ascending:true});
-
-  const chatBox = document.getElementById("chatBox");
-  chatBox.innerHTML="";
-
-  data.forEach(msg=>{
-    chatBox.innerHTML += 
-      "<p><b>"+msg.sender+":</b> "+msg.message+"</p>";
-  });
-
-  chatBox.scrollTop = chatBox.scrollHeight;
+  const { data, error } = await supabase.from('Messages').select().order('timestamp',{ascending:true});
+  if(!error && data.length){
+    const box = document.getElementById('chatBox');
+    box.innerHTML = data.map(row=>`${row.sender}: ${row.message}`).join('<br>');
+  }
 }
 
 async function sendMessage(){
-  const text = document.getElementById("msgInput").value;
-  if(!text) return;
-
-  await supabase.from("Messages").insert([
-    { sender: currentUser, message: text }
-  ]);
-
-  document.getElementById("msgInput").value="";
+  const msgInput=document.getElementById('msgInput');
+  if(msgInput.value.trim()==="") return;
+  const message = msgInput.value.trim();
+  // Save to Supabase
+  await supabase.from('Messages').insert([{ sender: currentUser, message: message }]);
+  msgInput.value="";
   loadMessages();
 }
-
-// realtime stars
-supabase
-.channel('stars')
-.on('postgres_changes',{event:'*',schema:'public',table:'Star'},()=>{
-  loadStars();
-})
-.subscribe();
-
-// realtime chat
-supabase
-.channel('chat')
-.on('postgres_changes',{event:'*',schema:'public',table:'Messages'},()=>{
-  loadMessages();
-})
-.subscribe();
-
-// PWA
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('sw.js');
-}
-
 </script>
 </body>
 </html>
