@@ -48,8 +48,8 @@
 <script>
   const supabase = window.supabase.createClient(
     "https://dpnoooewtbjkzxcugkrd.supabase.co",
-    "PASTE_YOUR_NEW_ANON_KEY"
-  );
+    "
+  );eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRwbm9vb2V3dGJqa3p4Y3Vna3JkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2ODYxODMsImV4cCI6MjA4NzI2MjE4M30.ugDUdtpEArQ38DH3mulCKuDTV4scWtCKtZXkQ-CzFnI"
 
   async function loadStars() {
     const { data } = await supabase.from("stars").select("*");
