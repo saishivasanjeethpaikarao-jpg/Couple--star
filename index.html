@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>⭐ Our Live Star App 🎁</title>
+</head>
+<body style="text-align:center;font-family:Arial;background:#ff7eb3;color:white;">
+
+<h1>⭐ Couple Star Tracker 💖</h1>
+
+<div style="background:white;color:black;padding:20px;margin:20px;border-radius:15px;display:inline-block;">
+  <h2>Sai</h2>
+  <h3 id="Sai">0</h3>
+  <button onclick="addStar('Sai')">+ Star</button>
+</div>
+
+<div style="background:white;color:black;padding:20px;margin:20px;border-radius:15px;display:inline-block;">
+  <h2>GF</h2>
+  <h3 id="GF">0</h3>
+  <button onclick="addStar('GF')">+ Star</button>
+</div>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+
+const supabase = createClient(
+  'https://dpnoooewtbjkzxcugkrd.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRwbm9vb2V3dGJqa3p4Y3Vna3JkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2ODYxODMsImV4cCI6MjA4NzI2MjE4M30.ugDUdtpEArQ38DH3mulCKuDTV4scWtCKtZXkQ-CzFnI'
+)
+
+async function loadStars() {
+  const { data } = await supabase.from('stars').select('*')
+  data.forEach(row => {
+    document.getElementById(row.person).innerText = row.stars
+  })
+}
+
+async function addStar(name) {
+  const { data } = await supabase
+    .from('stars')
+    .select('stars')
+    .eq('person', name)
+    .single()
+
+  let newStars = data.stars + 1
+
+  await supabase
+    .from('stars')
+    .update({ stars: newStars })
+    .eq('person', name)
+
+  if (newStars % 50 === 0) {
+    alert("🎁 Gift Time! " + name + " reached " + newStars + " stars!")
+  }
+
+  loadStars()
+}
+
+loadStars()
+
+supabase
+  .channel('realtime-stars')
+  .on('postgres_changes', { event: '*', schema: 'public', table: 'stars' }, () => {
+    loadStars()
+  })
+  .subscribe()
+</script>
+
+</body>
+</html>
